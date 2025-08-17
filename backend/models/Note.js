@@ -8,12 +8,13 @@ const VersionSchema = new mongoose.Schema({
 const NoteSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
-  content: { type: String, required: true }, // store HTML or JSON for rich text
+  content: { type: String, required: true }, // supports rich text (HTML)
   tags: [{ type: String }],
-  attachments: [{ type: String }], // filenames or URLs
+  attachments: [{ type: String }], // stores file paths or URLs
   pinned: { type: Boolean, default: false },
   sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   versions: [VersionSchema],
+  reminder: { type: Date },
   course: { type: String },
   module: { type: String },
   createdAt: { type: Date, default: Date.now }

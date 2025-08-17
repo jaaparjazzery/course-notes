@@ -1,13 +1,16 @@
-Course Notes
+# Professional Course Notes
 
 A web-based note-taking application for professionals taking web-based courses.
 
-## Features
+## Advanced Features
 
-- User authentication (register/login)
-- Create, edit, delete, and view notes
-- Organize notes by course and module
-- Responsive design
+- **Rich Text Editing**: WYSIWYG editor for notes
+- **Tagging & Search**: Organize and filter notes by tags and keywords
+- **Attachments**: Upload files (PDFs, images, etc.) to notes
+- **Pin/Star Notes**: Pin important notes to the top
+- **Collaboration**: Share notes with other users
+- **Version History**: Restore previous versions of notes
+- **Reminders/Notifications**: Set reminders for notes
 
 ## Getting Started
 
@@ -20,14 +23,14 @@ A web-based note-taking application for professionals taking web-based courses.
 
 1. **Clone the repository**
 
-```
+```sh
 git clone https://github.com/your-username/pro-course-notes.git
 cd pro-course-notes
 ```
 
 2. **Backend**
 
-```
+```sh
 cd backend
 npm install
 npm start
@@ -39,7 +42,7 @@ Backend runs on [http://localhost:5000](http://localhost:5000).
 
 In a new terminal:
 
-```
+```sh
 cd client
 npm install
 npm start

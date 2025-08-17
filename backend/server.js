@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 const authRoutes = require('./routes/auth');
 const notesRoutes = require('./routes/notes');
 
@@ -9,6 +10,9 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/pro-course-notes', {
