@@ -1,0 +1,63 @@
+name: Deploy Frontend and Backend to DigitalOcean Droplets
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  BACKEND_SSH_HOST: ${{ secrets.BACKEND_SSH_HOST }}
+  BACKEND_SSH_USER: ${{ secrets.BACKEND_SSH_USER }}
+  BACKEND_SSH_KEY: ${{ secrets.BACKEND_SSH_KEY }}
+  BACKEND_PATH: ${{ secrets.BACKEND_PATH }}
+  FRONTEND_SSH_HOST: ${{ secrets.FRONTEND_SSH_HOST }}
+  FRONTEND_SSH_USER: ${{ secrets.FRONTEND_SSH_USER }}
+  FRONTEND_SSH_KEY: ${{ secrets.FRONTEND_SSH_KEY }}
+  FRONTEND_PATH: ${{ secrets.FRONTEND_PATH }}
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to DigitalOcean Droplet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.BACKEND_SSH_KEY }}
+
+      - name: Copy backend files to droplet
+        run: |
+          rsync -avz --delete --exclude 'node_modules' --exclude '.env' backend/ ${{ env.BACKEND_SSH_USER }}@${{ env.BACKEND_SSH_HOST }}:${{ env.BACKEND_PATH }}/
+
+      - name: Restart backend service
+        run: |
+          ssh ${{ env.BACKEND_SSH_USER }}@${{ env.BACKEND_SSH_HOST }} 'cd ${{ env.BACKEND_PATH }} && npm install --production && pm2 restart ecosystem.config.js || pm2 start server.js --name pro-course-notes-backend'
+
+  deploy-frontend:
+    name: Deploy Frontend to DigitalOcean Droplet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.FRONTEND_SSH_KEY }}
+
+      - name: Build frontend
+        run: |
+          cd client
+          npm ci
+          npm run build
+
+      - name: Copy frontend build to droplet
+        run: |
+          rsync -avz --delete client/build/ ${{ env.FRONTEND_SSH_USER }}@${{ env.FRONTEND_SSH_HOST }}:${{ env.FRONTEND_PATH }}/
+
+      - name: (Optional) Reload web server (e.g., Nginx)
+        run: |
+          ssh ${{ env.FRONTEND_SSH_USER }}@${{ env.FRONTEND_SSH_HOST }} 'sudo systemctl reload nginx || true'
