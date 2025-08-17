@@ -1,4 +1,4 @@
-# Professional Course Notes
+# Course Notes App
 
 A web-based note-taking application for professionals taking web-based courses.
 
@@ -24,8 +24,8 @@ A web-based note-taking application for professionals taking web-based courses.
 1. **Clone the repository**
 
 ```sh
-git clone https://github.com/your-username/pro-course-notes.git
-cd pro-course-notes
+git clone https://github.com/your-username/course-notes.git
+cd ourse-notes
 ```
 
 2. **Backend**
