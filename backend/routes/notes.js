@@ -1,36 +1,44 @@
-const express = require('express');
-const Note = require('../models/Note');
-const auth = require('../middleware/auth');
-const router = express.Router();
+// ...existing code...
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
-// Get all notes for user
-router.get('/', auth, async (req, res) => {
-  const notes = await Note.find({ user: req.user }).sort({ createdAt: -1 });
+router.post('/upload', auth, upload.single('file'), (req, res) => {
+  // Save req.file.filename to note.attachments
+  res.json({ filename: req.file.filename });
+});
+
+// Search notes by keyword and tags
+router.get('/search', auth, async (req, res) => {
+  const { q, tags } = req.query;
+  let query = { user: req.user };
+  if (q) query.content = { $regex: q, $options: 'i' };
+  if (tags) query.tags = { $in: tags.split(',') };
+  const notes = await Note.find(query).sort({ pinned: -1, createdAt: -1 });
   res.json(notes);
 });
 
-// Create note
-router.post('/', auth, async (req, res) => {
-  const { title, content, course, module } = req.body;
-  const note = await Note.create({ user: req.user, title, content, course, module });
-  res.json(note);
-});
-
-// Update note
-router.put('/:id', auth, async (req, res) => {
-  const { title, content, course, module } = req.body;
+// Pin/unpin note
+router.patch('/:id/pin', auth, async (req, res) => {
+  const { pinned } = req.body;
   const note = await Note.findOneAndUpdate(
     { _id: req.params.id, user: req.user },
-    { title, content, course, module },
+    { pinned },
     { new: true }
   );
   res.json(note);
 });
 
-// Delete note
-router.delete('/:id', auth, async (req, res) => {
-  await Note.findOneAndDelete({ _id: req.params.id, user: req.user });
-  res.json({ message: 'Note deleted' });
+// Add note version on update
+router.put('/:id', auth, async (req, res) => {
+  const { title, content, course, module, tags, pinned } = req.body;
+  const note = await Note.findOne({ _id: req.params.id, user: req.user });
+  note.versions.push({ content: note.content });
+  note.title = title;
+  note.content = content;
+  note.course = course;
+  note.module = module;
+  note.tags = tags;
+  note.pinned = pinned;
+  await note.save();
+  res.json(note);
 });
-
-module.exports = router;
