@@ -1,4 +1,4 @@
-# Professional Course Notes
+Course Notes
 
 A web-based note-taking application for professionals taking web-based courses.
 
